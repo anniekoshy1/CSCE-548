@@ -19,19 +19,16 @@ def main():
         print("schema.sql not found in the current folder. Make sure you're in the repo folder.")
         sys.exit(1)
 
-    # create DB and apply schema
     conn = sqlite3.connect(DB_FILE)
     try:
         conn.execute("PRAGMA foreign_keys = ON;")
         run_sql_file(conn, SCHEMA)
-        # run seed if available
         if SEED.exists():
             run_sql_file(conn, SEED)
         conn.commit()
     finally:
         conn.close()
 
-    # verify tables and counts
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
@@ -39,12 +36,12 @@ def main():
     tables = [r["name"] for r in cur.fetchall()]
     print("\nCreated tables:", tables)
 
-    # if assignments table exists, show count
     if "assignments" in tables:
         cur.execute("SELECT COUNT(*) AS c FROM assignments;")
         print("assignments count:", cur.fetchone()["c"])
     conn.close()
+
     print("\nDone. You can now run `python app.py`.")
-    
+
 if __name__ == "__main__":
     main()
