@@ -1,4 +1,3 @@
-# CSCE-548
 # CSCE 548 – Project 2  
 Assignment Tracker
 
@@ -14,3 +13,9 @@ This project includes:
 
 ```bash
 pip install -r requirements.txt
+python create_db.py
+python service.py
+
+In a separate terminal window:
+```bash
+python client.py
