@@ -13,7 +13,9 @@ This project includes:
 
 ```bash
 pip install -r requirements.txt
+```bash
 python create_db.py
+```bash
 python service.py
 
 In a separate terminal window:
