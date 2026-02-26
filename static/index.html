@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assignment Tracker Client</title>
+</head>
+<body>
+    <h1>Assignment Tracker Client</h1>
+
+    <button onclick="getUsers()">Get All Users</button>
+    <button onclick="getUser()">Get Single User</button>
+    <button onclick="getCourses()">Get All Courses</button>
+    <button onclick="getAssignments()">Get All Assignments</button>
+    <button onclick="getAssignmentsByUser()">Get Assignments by User</button>
+
+    <pre id="output"></pre>
+
+<script>
+const BASE = "http://127.0.0.1:5000";
+
+async function getUsers() {
+    const res = await fetch(BASE + "/users");
+    document.getElementById("output").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
+async function getUser() {
+    const res = await fetch(BASE + "/users/1");
+    document.getElementById("output").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
+async function getCourses() {
+    const res = await fetch(BASE + "/courses");
+    document.getElementById("output").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
+async function getAssignments() {
+    const res = await fetch(BASE + "/assignments");
+    document.getElementById("output").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+
+async function getAssignmentsByUser() {
+    const res = await fetch(BASE + "/users/1/assignments");
+    document.getElementById("output").textContent =
+        JSON.stringify(await res.json(), null, 2);
+}
+</script>
+</body>
+</html>
