@@ -33,23 +33,27 @@ def create_user(username, email):
     return execute("INSERT INTO users (username, email) VALUES (?, ?)", (username, email))
 
 def get_users():
-    return fetch_all("SELECT * FROM users ORDER BY username")
+    return fetch_all("SELECT id, username, email FROM users ORDER BY username")
 
 def get_user(user_id):
-    return fetch_one("SELECT * FROM users WHERE user_id=?", (user_id,))
+    # users table uses column 'id'
+    return fetch_one("SELECT id, username, email FROM users WHERE id=?", (user_id,))
 
 def update_user_email(user_id, new_email):
-    return execute("UPDATE users SET email=? WHERE user_id=?", (new_email, user_id))
+    return execute("UPDATE users SET email=? WHERE id=?", (new_email, user_id))
 
 def delete_user(user_id):
-    return execute("DELETE FROM users WHERE user_id=?", (user_id,))
+    return execute("DELETE FROM users WHERE id=?", (user_id,))
 
 # --- COURSES CRUD ---
 def get_courses():
-    return fetch_all("SELECT * FROM courses ORDER BY course_code")
+    return fetch_all("SELECT id, course_code, course_name, instructor FROM courses ORDER BY course_code")
 
 def create_course(code, name, instructor=None):
     return execute("INSERT INTO courses (course_code, course_name, instructor) VALUES (?, ?, ?)", (code, name, instructor))
+
+def get_course(course_id):
+    return fetch_one("SELECT id, course_code, course_name, instructor FROM courses WHERE id=?", (course_id,))
 
 # --- ASSIGNMENTS CRUD ---
 def create_assignment(user_id, course_id, title, description, due_date, status='todo', points=0):
@@ -58,25 +62,32 @@ def create_assignment(user_id, course_id, title, description, due_date, status='
         VALUES (?, ?, ?, ?, ?, ?, ?)""", (user_id, course_id, title, description, due_date, status, points))
 
 def get_assignments_for_user(user_id):
-    return fetch_all("""SELECT a.*, c.course_code, c.course_name
-                        FROM assignments a LEFT JOIN courses c ON a.course_id=c.course_id
-                        WHERE a.user_id=?
+    # join on courses.id
+    return fetch_all("""SELECT a.id, a.user_id, a.course_id, a.title, a.description, a.due_date, a.status, a.points,
+                               c.course_code, c.course_name
+                        FROM assignments a
+                        LEFT JOIN courses c ON a.course_id = c.id
+                        WHERE a.user_id = ?
                         ORDER BY a.due_date""", (user_id,))
 
 def get_all_assignments():
-    return fetch_all("""SELECT a.*, u.username, c.course_code FROM assignments a
-                        LEFT JOIN users u ON a.user_id=u.user_id
-                        LEFT JOIN courses c ON a.course_id=c.course_id
+    # join on users.id and courses.id; return enriched rows
+    return fetch_all("""SELECT a.id, a.user_id, a.course_id, a.title, a.description, a.due_date, a.status, a.points,
+                               u.username AS username, c.course_code AS course_code
+                        FROM assignments a
+                        LEFT JOIN users u ON a.user_id = u.id
+                        LEFT JOIN courses c ON a.course_id = c.id
                         ORDER BY a.due_date""")
 
 def get_assignment(assignment_id):
-    return fetch_one("SELECT * FROM assignments WHERE assignment_id=?", (assignment_id,))
+    # assignments table uses 'id'
+    return fetch_one("SELECT id, user_id, course_id, title, description, due_date, status, points FROM assignments WHERE id=?", (assignment_id,))
 
 def update_assignment_status(assignment_id, new_status):
-    return execute("UPDATE assignments SET status=? WHERE assignment_id=?", (new_status, assignment_id))
+    return execute("UPDATE assignments SET status=? WHERE id=?", (new_status, assignment_id))
 
 def update_assignment_points(assignment_id, points):
-    return execute("UPDATE assignments SET points=? WHERE assignment_id=?", (points, assignment_id))
+    return execute("UPDATE assignments SET points=? WHERE id=?", (points, assignment_id))
 
 def delete_assignment(assignment_id):
-    return execute("DELETE FROM assignments WHERE assignment_id=?", (assignment_id,))
+    return execute("DELETE FROM assignments WHERE id=?", (assignment_id,))
