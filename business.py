@@ -16,6 +16,10 @@ from db import (
     update_assignment_status as _update_assignment_status,
     update_assignment_points as _update_assignment_points,
     delete_assignment as _delete_assignment,
+    # NEW: user update/delete functions from db.py
+    update_user as _update_user,
+    update_user_email as _update_user_email,
+    delete_user as _delete_user,
 )
 
 # ---------- Users ----------
@@ -31,6 +35,39 @@ def add_user(username, email):
 
 def get_user(user_id):
     return _get_user(user_id)
+
+def update_user(user_id, updates):
+    """
+    updates: dict that may contain 'username' and/or 'email'
+    Returns True if updated, False if user not found.
+    """
+    u = _get_user(user_id)
+    if not u:
+        raise ValueError("user not found")
+
+    # validate email if provided
+    if "email" in updates:
+        email = updates["email"]
+        if not email or "@" not in email:
+            raise ValueError("invalid email address")
+
+    # call DB-level update (it may update both fields atomically)
+    return _update_user(user_id, updates.get("username"), updates.get("email"))
+
+def update_user_email(user_id, email):
+    """Fallback if only email update is available in DB layer"""
+    u = _get_user(user_id)
+    if not u:
+        raise ValueError("user not found")
+    if not email or "@" not in email:
+        raise ValueError("invalid email address")
+    return _update_user_email(user_id, email)
+
+
+def delete_user(user_id):
+    """Delete a user. Return True if deleted, False if not found."""
+    return _delete_user(user_id)
+
 
 # ---------- Courses ----------
 def list_courses():
