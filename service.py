@@ -1,10 +1,11 @@
 # service.py
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import business as svc
 from db import get_assignment as _get_assignment
 
 app = Flask(__name__)
-
+CORS(app)
 # USERS
 @app.route("/users", methods=["GET"])
 def list_users():
@@ -22,7 +23,8 @@ def create_user():
 @app.route("/users/<int:user_id>", methods=["GET"])
 def get_user(user_id):
     u = svc.get_user(user_id)
-    if not u: return jsonify({"error":"not found"}), 404
+    if not u:
+        return jsonify({"error": "not found"}), 404
     return jsonify(u)
 
 # COURSES
@@ -39,6 +41,13 @@ def create_course():
     except Exception as ex:
         return jsonify({"error": str(ex)}), 400
 
+@app.route("/courses/<int:course_id>", methods=["GET"])
+def get_course(course_id):
+    c = svc.get_course(course_id)
+    if not c:
+        return jsonify({"error":"not found"}), 404
+    return jsonify(c)
+
 # ASSIGNMENTS
 @app.route("/assignments", methods=["GET"])
 def all_assignments():
@@ -54,8 +63,8 @@ def create_assignment():
             data.get("title"),
             data.get("description"),
             data.get("due_date"),
-            data.get("status","todo"),
-            int(data.get("points",0))
+            data.get("status", "todo"),
+            int(data.get("points", 0))
         )
         return jsonify({"assignment_id": aid}), 201
     except Exception as ex:
@@ -64,7 +73,8 @@ def create_assignment():
 @app.route("/assignments/<int:aid>", methods=["GET"])
 def get_assignment(aid):
     a = _get_assignment(aid)
-    if not a: return jsonify({"error":"not found"}), 404
+    if not a:
+        return jsonify({"error":"not found"}), 404
     return jsonify(a)
 
 @app.route("/assignments/<int:aid>/done", methods=["POST"])
