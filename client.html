@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Assignment Tracker</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    input {
+      padding: 8px;
+      margin: 5px;
+    }
+
+    .form {
+      background: white;
+      padding: 15px;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Assignment Tracker</h1>
+
+<!-- LOAD USERS -->
+<button onclick="loadUsers()">Load Users</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody id="usersTable"></tbody>
+</table>
+
+<!-- CREATE USER -->
+<div class="form">
+  <h3>Create User</h3>
+
+  <input id="username" placeholder="Username">
+  <input id="email" placeholder="Email">
+
+  <br>
+  <button onclick="createUser()">Add User</button>
+</div>
+
+<script>
+function loadUsers() {
+  fetch("http://127.0.0.1:5000/users")
+    .then(res => res.json())
+    .then(data => {
+      const table = document.getElementById("usersTable");
+      table.innerHTML = "";
+
+      data.forEach(user => {
+        const row = `
+          <tr>
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+          </tr>
+        `;
+        table.innerHTML += row;
+      });
+    });
+}
+
+function createUser() {
+  const username = document.getElementById("username").value;
+  const email = document.getElementById("email").value;
+
+  fetch("http://127.0.0.1:5000/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username, email })
+  })
+  .then(res => res.json())
+  .then(() => {
+    loadUsers(); // refresh table
+  });
+}
+</script>
+
+</body>
+</html>
